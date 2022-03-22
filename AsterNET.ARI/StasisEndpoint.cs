@@ -9,6 +9,8 @@
         /// <param name="username"></param>
         /// <param name="password"></param>
         /// <param name="ssl">Use SSL/TLS for ARI connection</param>
+        private const string path = "asterisk/ari";
+
         public StasisEndpoint(string host, int port, string username, string password, bool ssl = false)
         {
             Host = host;
@@ -28,9 +30,9 @@
         {
             get {
                 if (Ssl) {
-                    return string.Format("{0}://{1}:{2}/ari", "https", Host, Port);
+                    return string.Format("{0}://{1}:{2}/{3}", "https", Host, Port, path);
                 } else {
-                    return string.Format("{0}://{1}:{2}/ari", "http", Host, Port);
+                    return string.Format("{0}://{1}:{2}/{3}", "http", Host, Port, path);
                 }
             }
         }

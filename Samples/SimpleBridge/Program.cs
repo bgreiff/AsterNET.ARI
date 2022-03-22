@@ -24,15 +24,23 @@ namespace AsterNET.ARI.SimpleBridge
     {
         public static AriClient ActionClient;
         public static Bridge SimpleBridge;
+        //private const string AsterIP = "10.255.173.58";
 
-        private const string AppName = "bridge_test";
+
+        private const string AppName = "simpleconf";
+        private const string AsterIP = "192.168.155.242";        
+        private const int AsterPort = 8088;
+        private const string ARIUser = "ari_user";
+        private const string ARIPassword = "bBSrUuwwLTVBMC1OiH";
 
         static void Main(string[] args)
         {
             try
             {
                 // Create a message actionClient to receive events on
-                ActionClient = new AriClient(new StasisEndpoint("127.0.0.1", 8088, "dev", "test"), AppName);
+                StasisEndpoint ep = new StasisEndpoint(AsterIP, AsterPort, ARIUser, ARIPassword);
+                Console.WriteLine("Endpoint {0}", ep.AriEndPoint);
+                ActionClient = new AriClient(ep, AppName);
 
                 ActionClient.OnStasisStartEvent += c_OnStasisStartEvent;
                 ActionClient.OnStasisEndEvent += c_OnStasisEndEvent;
@@ -44,6 +52,7 @@ namespace AsterNET.ARI.SimpleBridge
 
                 // subscribe to bridge events
                 ActionClient.Applications.Subscribe(AppName, "bridge:" + SimpleBridge.Id);
+                Console.WriteLine("Bridge {0}", SimpleBridge.Id);
 
                 // start MOH on bridge
                 ActionClient.Bridges.StartMoh(SimpleBridge.Id, "default");
@@ -55,22 +64,27 @@ namespace AsterNET.ARI.SimpleBridge
                     switch(lastKey.KeyChar.ToString())
                     {
                         case "*":
+                            Console.WriteLine("* Pressed");
                             done = true;
                             break;
                         case "1":
+                            Console.WriteLine("1 Pressed");
                             ActionClient.Bridges.StopMoh(SimpleBridge.Id);
                             break;
                         case "2":
+                            Console.WriteLine("2 Pressed");
                             ActionClient.Bridges.StartMoh(SimpleBridge.Id, "default");
                             break;
                         case "3":
                             // Mute all channels on bridge
+                            Console.WriteLine("3 Pressed");
                             var bridgeMute = ActionClient.Bridges.Get(SimpleBridge.Id);
                             foreach (var chan in bridgeMute.Channels)
                                 ActionClient.Channels.Mute(chan, "in");
                             break;
                         case "4":
                             // Unmute all channels on bridge
+                            Console.WriteLine("4 Pressed");
                             var bridgeUnmute = ActionClient.Bridges.Get(SimpleBridge.Id);
                             foreach (var chan in bridgeUnmute.Channels)
                                 ActionClient.Channels.Unmute(chan, "in");
@@ -90,6 +104,7 @@ namespace AsterNET.ARI.SimpleBridge
 
         static void c_OnStasisEndEvent(object sender, AsterNET.ARI.Models.StasisEndEvent e)
         {
+            Console.WriteLine("End Event");
             // remove from bridge
             ActionClient.Bridges.RemoveChannel(SimpleBridge.Id, e.Channel.Id);
 
@@ -99,6 +114,7 @@ namespace AsterNET.ARI.SimpleBridge
 
         static void c_OnStasisStartEvent(object sender, AsterNET.ARI.Models.StasisStartEvent e)
         {
+            Console.WriteLine("Start Event");
             // answer channel
             ActionClient.Channels.Answer(e.Channel.Id);
 

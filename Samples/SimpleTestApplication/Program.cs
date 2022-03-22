@@ -12,9 +12,8 @@ namespace AsterNET.ARI.TestApplication
             try
             {
                 // Create a new Ari Connection
-                ActionClient = new AriClient(
-                    new StasisEndpoint("192.168.3.201", 8088, "test", "test"),
-                    "HelloWorld");
+                StasisEndpoint ep = new StasisEndpoint("192.168.3.201", 8088, "test", "test");
+                ActionClient = new AriClient(ep,"HelloWorld");
 
                 // Hook into required events
                 ActionClient.OnStasisStartEvent += c_OnStasisStartEvent;

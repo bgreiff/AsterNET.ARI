@@ -15,6 +15,8 @@ namespace AsterNET.ARI.Middleware.Default
         public event EventHandler<MessageEventArgs> OnMessageReceived;
         public event EventHandler OnConnectionStateChanged;
 
+        private const string path = "asterisk/ws";
+
         #region Constructor
 
         public WebSocketEventProducer(StasisEndpoint connectionInfo, string application)
@@ -43,20 +45,24 @@ namespace AsterNET.ARI.Middleware.Default
 
         public void Connect(bool subscribeAll = false, bool ssl = false)
         {
+
             try
             {
                 if (!ssl)
                 {
-                    _client = new WebSocket(string.Format("ws://{0}:{3}/ari/events?app={1}&subscribeAll={4}&api_key={2}",
+                    string URL = string.Format("ws://{0}:{3}/{5}?app={1}&subscribeAll={4}&api_key={2}",
                         _connectionInfo.Host, _application,
-                        string.Format("{0}:{1}", _connectionInfo.Username, _connectionInfo.Password), _connectionInfo.Port, subscribeAll));
+                        string.Format("{0}:{1}", _connectionInfo.Username, _connectionInfo.Password), _connectionInfo.Port, subscribeAll, path);
+                    Console.WriteLine("WS-Endpoint {0}", URL);
+                    _client = new WebSocket(URL);
                 }
                 else
                 {
-                    _client = new WebSocket(string.Format("wss://{0}:{3}/ari/events?app={1}&subscribeAll={4}&api_key={2}",
+                    string URL = string.Format("wss://{0}:{3}/{5}/events?app={1}&subscribeAll={4}&api_key={2}",
                         _connectionInfo.Host, _application,
-                        string.Format("{0}:{1}", _connectionInfo.Username, _connectionInfo.Password), _connectionInfo.Port, subscribeAll),
-                        null, null, null, "", "", WebSocketVersion.None, null,
+                        string.Format("{0}:{1}", _connectionInfo.Username, _connectionInfo.Password), _connectionInfo.Port, subscribeAll, path);
+                    Console.WriteLine("WS-Endpoint {0}", URL);
+                    _client = new WebSocket(URL,null, null, null, "", "", WebSocketVersion.None, null,
                         System.Security.Authentication.SslProtocols.None, 0);
                 }
 
